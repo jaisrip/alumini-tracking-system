@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Alumni {
+    int id; char name[50], dept[30], occ[50]; int year;
+    struct Alumni *next;
+} Alumni;
+
+Alumni* insert_alumni(Alumni *h,int id,char *name,char *dept,int year,char *occ){
+    Alumni *n=malloc(sizeof(Alumni)); n->id=id; strcpy(n->name,name); strcpy(n->dept,dept); n->year=year; strcpy(n->occ,occ); n->next=NULL;
+    if(!h) return n;
+    Alumni *t=h; while(t->next) t=t->next; t->next=n; return h;
+}
+Alumni* delete_alumni(Alumni *h,int id){
+    Alumni *t=h,*prev=NULL;
+    while(t && t->id!=id){ prev=t; t=t->next; }
+    if(!t){ printf("Not found\n"); return h; }
+    if(!prev) { h=h->next; free(t); } else { prev->next=t->next; free(t); }
+    printf("Deleted\n"); return h;
+}
+Alumni* search_by_id(Alumni *h,int id){ while(h){ if(h->id==id) return h; h=h->next; } return NULL; }
+Alumni* search_by_name(Alumni *h,char *name){ while(h){ if(strcmp(h->name,name)==0) return h; h=h->next; } return NULL; }
+Alumni* clone_alumni(Alumni *h){ if(!h) return NULL; Alumni *nh=NULL,*tail=NULL,*t=h; while(t){ Alumni *n=malloc(sizeof(Alumni)); *n=*t; n->next=NULL; if(!nh) nh=tail=n; else { tail->next=n; tail=n; } t=t->next; } return nh; }
+void dept_list(Alumni *h,char *dept){ while(h){ if(strcmp(h->dept,dept)==0) printf("%d %s %d %s\n",h->id,h->name,h->year,h->occ); h=h->next; } }
+
+int main(){
+    Alumni *h=NULL; int ch;
+    while(1){
+        printf("\n1.Add 2.Delete 3.Search ID 4.Search name 5.Clone 6.Dept list 7.Exit\nChoice: "); if(scanf("%d",&ch)!=1) break;
+        if(ch==1){ int id,yr; char name[50],dept[30],occ[50]; printf("id name dept year occ: "); scanf("%d %49s %29s %d %49s",&id,name,dept,&yr,occ); h = insert_alumni(h,id,name,dept,yr,occ); }
+        else if(ch==2){ int id; printf("id: "); scanf("%d",&id); h = delete_alumni(h,id); }
+        else if(ch==3){ int id; printf("id: "); scanf("%d",&id); Alumni *a=search_by_id(h,id); if(a) printf("%d %s %s %d %s\n",a->id,a->name,a->dept,a->year,a->occ); else printf("Not found\n"); }
+        else if(ch==4){ char name[50]; printf("name: "); scanf("%49s",name); Alumni *a=search_by_name(h,name); if(a) printf("%d %s %s %d %s\n",a->id,a->name,a->dept,a->year,a->occ); else printf("Not found\n"); }
+        else if(ch==5){ Alumni *cl=clone_alumni(h); printf("Cloned:\n"); Alumni *t=cl; while(t){ printf("%d %s %s %d %s\n",t->id,t->name,t->dept,t->year,t->occ); t=t->next; } while(cl){ Alumni *tmp=cl; cl=cl->next; free(tmp);} }
+        else if(ch==6){ char dept[30]; printf("dept: "); scanf("%29s",dept); dept_list(h,dept); }
+        else break;
+    }
+    return 0;
+}
